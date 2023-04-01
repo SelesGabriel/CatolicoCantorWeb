@@ -1,0 +1,20 @@
+﻿@using BlazorStrap;
+<BSNavbar Color="BSColor.Light">
+    <BSContainer Container="BlazorStrap.V5.Container.Fluid">
+        <BSNavbarBrand>Navbar</BSNavbarBrand>
+        <BSCollapse IsInNavbar="true">
+            <Toggler>
+                <BSNavbarToggle />
+            </Toggler>
+            <Content>
+                <BSNav MarginEnd="Margins.Auto" MarginBottom="Margins.Small" Class="navbar-nav mx-auto">
+                    <BSNavItem Url="">Inicio</BSNavItem>
+                    <BSNavItem Url="playlists">Playlists</BSNavItem>
+                </BSNav>
+                <BSNav>
+                    <BSNavItem Url="profile">Perfil</BSNavItem>
+                </BSNav>
+            </Content>
+        </BSCollapse>
+    </BSContainer>
+</BSNavbar>

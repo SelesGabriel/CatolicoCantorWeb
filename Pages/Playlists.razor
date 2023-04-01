@@ -1,0 +1,70 @@
+﻿@page "/playlists"
+@using CatolicoCantorWeb.Mock;
+@using CatolicoCantorWeb.Models;
+
+<section class="py-5 bg-light">
+    <h1 class="text-center text-success" style="padding-top: 15px;padding-bottom: 15px;color: #1b6ce5!important;">Playlists</h1>
+    <div class="container">
+        <BSAccordion>
+            @foreach (var playlist in playlists)
+            {
+                <BSAccordionItem AlwaysOpen="true">
+                    <Header>@playlist.Nome</Header>
+                    <Content>
+                        <BSTable Color="BlazorStrap.BSColor.Light">
+                            <BSTHead>
+                                <BSTR>
+                                    <BSTD>Música</BSTD>
+                                    <BSTD>Cantor</BSTD>
+                                    <BSTD>Cifra</BSTD>
+                                    <BSTD>Letra</BSTD>
+                                    <BSTD>Youtube</BSTD>
+                                </BSTR>
+                            </BSTHead>
+                            <BSTBody>
+                                @foreach (var item in musics.Where(x => playlist.IdMusicas.Contains(x.Id)))
+                                {
+                                    <BSTR>
+                                        <BSTD>@item.Nome</BSTD>
+                                        <BSTD>@item.Cantor</BSTD>
+                                        <BSTD><a href="@item.Cifra" target="_blank">Link</a></BSTD>
+                                        <BSTD><a href="@item.Letra" target="_blank">Link</a></BSTD>
+
+                                        <BSTD>
+                                            <a href="@item.Youtube" target="_blank" _blank>
+                                                <Icon Name="IconName.Play" IconSize="IconSize.x2"></Icon>
+                                            </a>
+                                        </BSTD>
+                                    </BSTR>
+                                }
+                            </BSTBody>
+                        </BSTable>
+                    </Content>
+
+                </BSAccordionItem>
+            }
+        </BSAccordion>
+    </div>
+</section>
+
+@code {
+    Mocks mock = new Mocks();
+    List<Playlist> playlists = new();
+    List<Music> musics = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPlaylists();
+        await GetMusics();
+    }
+
+    async Task GetPlaylists()
+    {
+        playlists = await mock.GetPlaylists();
+    }
+
+    async Task GetMusics()
+    {
+        musics = await mock.GetMusics();
+    }
+}

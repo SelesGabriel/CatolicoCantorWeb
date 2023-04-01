@@ -1,0 +1,47 @@
+﻿<BSModal IsStaticBackdrop="true" DataId="@String.Concat("modal-",@Music.Id.ToString())">
+    <Header>Adicionar música à playlist</Header>
+    <Content>
+        <form style="max-width: 700px"
+              role="form"
+              action="indexTeachers.html"
+              method="post"
+              enctype="multipart/form-data">
+            <div class="form-group mb-3">
+                <label class="form-label">Nome da Playlist</label><select id="tomSelect2" class="form-select" required>
+                    <option value="0">Nova Playlist</option>
+                    @foreach(var item in Playlists)
+                    {
+                    <option value="@item.Id">@item.Nome</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label class="form-label">Nome da Música</label>
+                <input type="text"
+                       disabled
+                       value="@Music.Nome - @Music.Cantor"
+                       class="form-control" />
+            </div>
+            <hr style="margin-top: 30px; margin-bottom: 10px" />
+            <div class="form-group mb-3">
+                <button id="submitButton"
+                        class="btn btn-secondary d-block w-100"
+                        type="submit">
+                    <i class="fas fa-save"></i>Salvar
+                </button>
+            </div>
+        </form>
+    </Content>
+    <Footer Context="modal">
+        <BSButton MarginStart="Margins.Auto" Color="BSColor.Secondary" @onclick="modal.HideAsync">Close</BSButton>
+        <BSButton Color="BSColor.Primary">Understood</BSButton>
+    </Footer>
+</BSModal>
+
+<BSButton Target="@String.Concat("modal-",@Music.Id.ToString())"><Icon Name="IconName.Add" IconSize="IconSize.x2" /></BSButton>
+
+@code {
+    [Parameter] public Music Music { get; set; }
+    [Parameter] public List<Playlist>? Playlists { get; set; }
+
+}
