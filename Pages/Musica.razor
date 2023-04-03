@@ -1,0 +1,86 @@
+﻿@page "/musicas"
+@inject HttpClient http
+<h3>Musica</h3>
+
+<EditForm Model="musica" style="max-width: 100%" OnValidSubmit="CriarMusica"
+          role="form"
+          action="indexTeachers.html"
+          method="post"
+          enctype="multipart/form-data">
+    <div class="form-group mb-3">
+        <label class="form-label">Nome da Música</label>
+        <InputText @bind-Value="@musica.Nome" type="text" class="form-control" />
+        <ValidationMessage For="@(()=>musica.Nome)"></ValidationMessage>
+    </div>
+    <div class="form-group mb-3">
+        <label class="form-label">Nome do Cantor</label>
+        <InputText @bind-Value="@musica.Cantor" type="text"
+                   class="form-control" />
+    </div>
+    <div class="form-group mb-3">
+        <label class="form-label">Link da Cifra</label>
+        <InputText @bind-Value="@musica.Cifra" type="text"
+                   class="form-control" />
+    </div>
+    <div class="form-group mb-3">
+        <label class="form-label">Link da Letra da Música</label>
+        <InputText @bind-Value="@musica.Letra" type="text"
+                   class="form-control" />
+    </div>
+    <div class="form-group mb-3">
+        <label class="form-label">Link do Youtube</label>
+        <InputText @bind-Value="@musica.Youtube" type="text"
+                   class="form-control" />
+    </div>
+    <div class="form-group mb-3">
+        <label class="form-label">Tags</label>
+        <InputText @bind-Value="@musica.Tags" type="text"
+                   class="form-control" />
+    </div>
+    <div class="form-group mb-3">
+        <label class="form-label">Categorias</label>
+    </div>
+
+        <RadzenDropDown @bind-Value=@values Data=@categories TextProperty="Name" ValueProperty="Id" MaxSelectedLabels=10
+                        Multiple=true AllowClear=true Placeholder="Select products"  Style="height:auto;width:100%" />
+    
+    <hr style="margin-top: 30px; margin-bottom: 10px" />
+    <div class="form-group mb-3">
+        <button id="submitButton"
+                class="btn btn-secondary d-block w-100"
+                type="submit">
+            <i class="fas fa-save"></i> Salvar
+        </button>
+    </div>
+    <div class="form-group mb-3">
+    </div>
+    <BSValidationSummary />
+    <DataAnnotationsValidator />
+</EditForm>
+
+
+
+
+@code {
+
+    IList<int> values = new int[] { 1, 2 };
+    Music musica = new();
+    List<Category>? categories = new();
+    List<string> listCategories = new();
+    string value = "klasd";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCategorias();
+    }
+
+    async Task CriarMusica()
+    {
+        await http.PostAsJsonAsync("https://localhost:7100/v1/music", musica);
+    }
+
+    async Task GetCategorias()
+    {
+        categories = await http.GetFromJsonAsync<List<Category>>("https://localhost:7100/v1/categories");
+    }
+}

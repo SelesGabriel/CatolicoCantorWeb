@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Blazorise" Version="1.2.2" />
     <PackageReference Include="Blazorise.Bootstrap" Version="1.2.2" />
+    <PackageReference Include="Blazorise.Components" Version="1.2.2" />
     <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.2.2" />
     <PackageReference Include="Blazorise.Video" Version="1.2.2" />
     <PackageReference Include="BlazorStrap" Version="5.1.101" />
@@ -17,6 +18,7 @@
     <PackageReference Include="FontAwesome" Version="4.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.4" PrivateAssets="all" />
+    <PackageReference Include="Radzen.Blazor" Version="4.8.3" />
   </ItemGroup>
 
   <ItemGroup>
