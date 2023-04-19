@@ -1,5 +1,7 @@
 ﻿@page "/"
 @using CatolicoCantorWeb.Mock;
+@inject HttpClient http
+
 
 <div>
 
@@ -16,12 +18,18 @@
                     @foreach (var item in musicas)
                     {
                         <div class="col">
-                            <small class="text-muted">Categorias</small>
+                            <small class="text-muted">
+                                @foreach(var i in item.Categories)
+                                {
+                                    @string.Concat(i.Nome," - ")
+                                }
+                                
+                                </small>
                             <div class="card shadow-sm">
                                 <div class="card-body">
                                     <div class="flex-row justify-content-center align-items-center">
                                         <div style="height: 200px;background: var(--bs-dark);max-width: 100%;">
-                                            <iframe width="560" height="315" controls style="max-width: 100%;max-height: 100%;" loop src="@item.Youtube" frameborder="0" allowfullscreen></iframe>
+                                            <iframe width="560" height="315" controls style="max-width: 100%;max-height: 100%;" loop src=@string.Concat("http://www.youtube.com/embed/",@item.Youtube) frameborder="0" allowfullscreen></iframe>
                                         </div>
                                     </div>
                                     <p class="card-text">@item.Nome - @item.Cantor</p>
@@ -29,13 +37,13 @@
                                         <div class="col col-4">
                                             <div></div>
                                             <div class="d-flex justify-content-between align-items-center float-start">
-                                                <a target="_blank" _blank href="@item.Letra" class="card-text">LETRA</a>
+                                                <a target="_blank" _blank href=@string.Concat("https://www.letras.mus.br/",@item.Letra) class="card-text">LETRA</a>
                                             </div>
                                         </div>
                                         <div class="col col-4">
                                             <div></div>
                                             <div class="d-flex justify-content-between align-items-center float-end">
-                                                <a target="_blank" _blank href="@item.Cifra" class="card-text">CIFRA</a>
+                                                <a target="_blank" _blank href=@string.Concat("https://www.cifraclub.com.br/",item.Cifra) class="card-text">CIFRA</a>
                                             </div>
                                         </div>
                                         <div class="col col-4">
@@ -58,22 +66,31 @@
 @code {
     List<Music> musicas = new();
     List<Playlist> playlists= new();
+    List<Category> categories = new();
     Mocks mockMusics = new();
 
     protected override async Task OnInitializedAsync()
     {
         await GetMusics();
+        await GetCategories();
         await GetPlaylists();
     }
 
     public async Task GetMusics()
     {
-        musicas = await mockMusics.GetMusics();
+        musicas = await http.GetFromJsonAsync<List<Music>>("https://localhost:7100/v1/musics");
     }
-    
+
     public async Task GetPlaylists()
     {
         playlists = await mockMusics.GetPlaylists();
+        playlists.Add(new Playlist { Id = 0, Nome = "Nova Playlist" });
+        playlists.Reverse();
+    }
+
+    public async Task GetCategories()
+    {
+        categories = await http.GetFromJsonAsync<List<Category>>("https://localhost:7100/v1/categories");
     }
 
 }

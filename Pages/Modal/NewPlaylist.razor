@@ -1,20 +1,26 @@
-﻿<BSModal IsStaticBackdrop="true" DataId="@String.Concat("modal-",@Music.Id.ToString())">
+﻿@inject HttpClient http
+
+
+<BSModal IsStaticBackdrop="true" DataId="@String.Concat("modal-",@Music.Id.ToString())">
     <Header>Adicionar música à playlist</Header>
     <Content>
-        <form style="max-width: 700px"
-              role="form"
-              action="indexTeachers.html"
+        <form style="max-width: 700px" @onsubmit="@AddMusicToPlaylist"
               method="post"
               enctype="multipart/form-data">
             <div class="form-group mb-3">
-                <label class="form-label">Nome da Playlist</label><select id="tomSelect2" class="form-select" required>
-                    <option value="0">Nova Playlist</option>
-                    @foreach(var item in Playlists)
-                    {
-                    <option value="@item.Id">@item.Nome</option>
-                    }
-                </select>
+                <label class="form-label">Nome da Playlist</label>
+                <RadzenDropDown @bind-Value=@idPlaylist Data=@Playlists TextProperty="Nome" ValueProperty="Id" Change="ChangeNewPlaylist"
+                                Multiple=false AllowClear=true Placeholder="Selecione"  Style="height:auto;width:100%" />
             </div>
+            @if (novaPlaylist)
+            {
+                <div class="form-group mb-3">
+                    <label class="form-label">Nome da Playlist</label>
+                    <input type="text"
+                           @bind-value="@nomePlaylist"
+                           class="form-control" />
+                </div>
+            }
             <div class="form-group mb-3">
                 <label class="form-label">Nome da Música</label>
                 <input type="text"
@@ -43,5 +49,48 @@
 @code {
     [Parameter] public Music Music { get; set; }
     [Parameter] public List<Playlist>? Playlists { get; set; }
+    IncludeMusicPlaylist IncludeMusicPlaylist = new();
+    string PlaylistName;
+    bool novaPlaylist;
+    int idPlaylist;
+    string nomePlaylist;
 
+    public Playlist playlist = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        nomePlaylist = "";
+        novaPlaylist = true;
+    }
+
+
+    public void ChangeNewPlaylist()
+    {
+        if (idPlaylist == 0)
+            novaPlaylist = true;
+        else
+            novaPlaylist = false;
+    }
+
+    public async Task AddMusicToPlaylist()
+    {
+        if (novaPlaylist)
+        {
+            if (string.IsNullOrEmpty(nomePlaylist)) return;
+            playlist = new Playlist { Nome = nomePlaylist };
+            idPlaylist = await AddNewPlaylist();
+        }
+        IncludeMusicPlaylist.PlaylistId = idPlaylist;
+        IncludeMusicPlaylist.MusicId = Music.Id;
+        http.PostAsJsonAsync("https://localhost:7100/v1/includemusic", IncludeMusicPlaylist);
+    }
+
+    public async Task<int> AddNewPlaylist()
+    {
+        var playlistId = await http.PostAsJsonAsync("https://localhost:7100/v1/playlist", playlist);
+        var t = await playlistId.Content.ReadAsStringAsync();
+
+        var tes = Convert.ToInt32(t);
+        return tes; 
+    }
 }

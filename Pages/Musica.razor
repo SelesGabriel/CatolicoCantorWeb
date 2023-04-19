@@ -33,17 +33,12 @@
                    class="form-control" />
     </div>
     <div class="form-group mb-3">
-        <label class="form-label">Tags</label>
-        <InputText @bind-Value="@musica.Tags" type="text"
-                   class="form-control" />
-    </div>
-    <div class="form-group mb-3">
         <label class="form-label">Categorias</label>
     </div>
 
-        <RadzenDropDown @bind-Value=@values Data=@categories TextProperty="Name" ValueProperty="Id" MaxSelectedLabels=10
-                        Multiple=true AllowClear=true Placeholder="Select products"  Style="height:auto;width:100%" />
-    
+    <RadzenDropDown @bind-Value=@idCategorias Data=@categories TextProperty="Nome" ValueProperty="Id" MaxSelectedLabels="10"
+                    Multiple=true AllowClear=true Placeholder="Selecione" Chips=true Style="height:auto;width:100%" />
+
     <hr style="margin-top: 30px; margin-bottom: 10px" />
     <div class="form-group mb-3">
         <button id="submitButton"
@@ -62,12 +57,10 @@
 
 
 @code {
-
-    IList<int> values = new int[] { 1, 2 };
     Music musica = new();
     List<Category>? categories = new();
-    List<string> listCategories = new();
-    string value = "klasd";
+    List<string> tags = new();
+    List<int> idCategorias = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,11 +69,38 @@
 
     async Task CriarMusica()
     {
+        if (idCategorias.Count == 0)
+        {
+            return;
+        }
+        musica.Tags = "";
+        AdicionaNomeMusicaEmTag();
+        foreach (var tag in tags)
+        {
+            if (!musica.Tags.Contains(tag))
+                musica.Tags = musica.Tags + $" {tag}";
+        }
+
+        foreach (var id in idCategorias)
+        {
+            musica.Categories.Add(categories.First(x => x.Id == id));
+        }
+
         await http.PostAsJsonAsync("https://localhost:7100/v1/music", musica);
     }
 
     async Task GetCategorias()
     {
         categories = await http.GetFromJsonAsync<List<Category>>("https://localhost:7100/v1/categories");
+    }
+
+    void AdicionaNomeMusicaEmTag()
+    {
+        tags.AddRange(musica.Cantor.Split(" ").ToList());
+        tags.AddRange(musica.Nome.Split(" ").ToList());
+        foreach (var cat in categories.Where(x => idCategorias.Contains(x.Id)))
+        {
+            tags.Add(cat.Nome);
+        }
     }
 }
