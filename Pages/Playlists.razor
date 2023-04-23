@@ -1,6 +1,8 @@
 ﻿@page "/playlists"
+@inject HttpClient http
 @using CatolicoCantorWeb.Mock;
 @using CatolicoCantorWeb.Models;
+@using CatolicoCantorWeb.Models.ViewModel;
 
 <section class="py-5 bg-light">
     <h1 class="text-center text-success" style="padding-top: 15px;padding-bottom: 15px;color: #1b6ce5!important;">Playlists</h1>
@@ -16,22 +18,22 @@
                                 <BSTR>
                                     <BSTD>Música</BSTD>
                                     <BSTD>Cantor</BSTD>
-                                    <BSTD>Cifra</BSTD>
                                     <BSTD>Letra</BSTD>
+                                    <BSTD>Cifra</BSTD>
                                     <BSTD>Youtube</BSTD>
                                 </BSTR>
                             </BSTHead>
                             <BSTBody>
-                                @foreach (var item in musics.Where(x => playlist.IdMusicas.Contains(x.Id)))
+                                @foreach (var item in musics.Where(x => playlist.Musics.Any(c=>c.Id == x.Id)))
                                 {
                                     <BSTR>
                                         <BSTD>@item.Nome</BSTD>
                                         <BSTD>@item.Cantor</BSTD>
-                                        <BSTD><a href="@item.Cifra" target="_blank">Link</a></BSTD>
-                                        <BSTD><a href="@item.Letra" target="_blank">Link</a></BSTD>
+                                        <BSTD><a target="_blank" _blank href=@string.Concat("https://www.letras.mus.br/",@item.Letra)>Link</a></BSTD>
+                                        <BSTD><a target="_blank" _blank href=@string.Concat("https://www.cifraclub.com.br/",@item.Cifra)>Link</a></BSTD>
 
                                         <BSTD>
-                                            <a href="@item.Youtube" target="_blank" _blank>
+                                            <a target="_blank" _blank href=@string.Concat("http://www.youtube.com/watch?v=",@item.Youtube)>
                                                 <Icon Name="IconName.Play" IconSize="IconSize.x2"></Icon>
                                             </a>
                                         </BSTD>
@@ -49,7 +51,7 @@
 
 @code {
     Mocks mock = new Mocks();
-    List<Playlist> playlists = new();
+    List<PlaylistVM> playlists = new();
     List<Music> musics = new();
 
     protected override async Task OnInitializedAsync()
@@ -60,11 +62,12 @@
 
     async Task GetPlaylists()
     {
-        playlists = await mock.GetPlaylists();
+        //playlists = await mock.GetPlaylists();
+        playlists = await http.GetFromJsonAsync<List<PlaylistVM>>("https://localhost:7100/v1/playlists");
     }
 
     async Task GetMusics()
     {
-        musics = await mock.GetMusics();
+        musics = await http.GetFromJsonAsync<List<Music>>("https://localhost:7100/v1/musics");
     }
 }

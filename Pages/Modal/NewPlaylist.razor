@@ -30,21 +30,28 @@
             </div>
             <hr style="margin-top: 30px; margin-bottom: 10px" />
             <div class="form-group mb-3">
-                <button id="submitButton"
-                        class="btn btn-secondary d-block w-100"
-                        type="submit">
+                <BSButton id="submitButton"
+                        class="btn btn-primary d-block w-100"
+                          type="submit"
+                          Target="@String.Concat("modal-resposta-",@Music.Id.ToString())">
                     <i class="fas fa-save"></i>Salvar
-                </button>
+                </BSButton>
             </div>
         </form>
     </Content>
-    <Footer Context="modal">
-        <BSButton MarginStart="Margins.Auto" Color="BSColor.Secondary" @onclick="modal.HideAsync">Close</BSButton>
-        <BSButton Color="BSColor.Primary">Understood</BSButton>
-    </Footer>
 </BSModal>
 
 <BSButton Target="@String.Concat("modal-",@Music.Id.ToString())"><Icon Name="IconName.Add" IconSize="IconSize.x2" /></BSButton>
+
+
+
+
+<BSModal DataId="@String.Concat("modal-resposta-",@Music.Id.ToString())">
+    <Header>Mensagem:</Header>
+    <Content>@mensagem</Content>
+</BSModal>
+
+
 
 @code {
     [Parameter] public Music Music { get; set; }
@@ -54,19 +61,20 @@
     bool novaPlaylist;
     int idPlaylist;
     string nomePlaylist;
+    string mensagem;
 
     public Playlist playlist = new();
 
     protected override async Task OnInitializedAsync()
     {
         nomePlaylist = "";
-        novaPlaylist = true;
+        novaPlaylist = false;
     }
 
 
     public void ChangeNewPlaylist()
     {
-        if (idPlaylist == 0)
+        if (idPlaylist == -1)
             novaPlaylist = true;
         else
             novaPlaylist = false;
@@ -74,6 +82,11 @@
 
     public async Task AddMusicToPlaylist()
     {
+        if(idPlaylist == -1 || idPlaylist == 0)
+        {
+            mensagem = "Selecione uma playlist, ou crie uma nova playlist.";
+            return;
+        }
         if (novaPlaylist)
         {
             if (string.IsNullOrEmpty(nomePlaylist)) return;
@@ -82,7 +95,8 @@
         }
         IncludeMusicPlaylist.PlaylistId = idPlaylist;
         IncludeMusicPlaylist.MusicId = Music.Id;
-        http.PostAsJsonAsync("https://localhost:7100/v1/includemusic", IncludeMusicPlaylist);
+        var r =await  http.PostAsJsonAsync("https://localhost:7100/v1/includemusic", IncludeMusicPlaylist);
+        mensagem = await r.Content.ReadAsStringAsync();
     }
 
     public async Task<int> AddNewPlaylist()

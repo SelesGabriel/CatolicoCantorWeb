@@ -8,14 +8,14 @@
     <main>
         <div class="bg-light album py-5">
             <div class="input-group">
-                <input class="form-control" type="text" placeholder="Search" aria-label="Search" aria-describedby="button-addon2" />
+                <input @bind="SearchTerm" @bind:event="oninput" class="form-control" type="text" placeholder="Search" aria-label="Search" aria-describedby="button-addon2" />
                 <button id="button-addon2" class="btn btn-outline-secondary" type="button">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
             <div class="container">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-                    @foreach (var item in musicas)
+                    @foreach (var item in filteredMusics)
                     {
                         <div class="col">
                             <small class="text-muted">
@@ -29,7 +29,7 @@
                                 <div class="card-body">
                                     <div class="flex-row justify-content-center align-items-center">
                                         <div style="height: 200px;background: var(--bs-dark);max-width: 100%;">
-                                            <iframe width="560" height="315" controls style="max-width: 100%;max-height: 100%;" loop src=@string.Concat("http://www.youtube.com/embed/",@item.Youtube) frameborder="0" allowfullscreen></iframe>
+                                            <iframe width="560" height="315" controls style="max-width: 100%;max-height: 100%;" src=@string.Concat("http://www.youtube.com/embed/",@item.Youtube) frameborder="0" allowfullscreen></iframe>
                                         </div>
                                     </div>
                                     <p class="card-text">@item.Nome - @item.Cantor</p>
@@ -69,6 +69,9 @@
     List<Category> categories = new();
     Mocks mockMusics = new();
 
+    List<Music> filteredMusics => musicas.Where(i => i.Tags.ToLower().Contains(SearchTerm.ToLower())).ToList();
+    string SearchTerm { get; set; } = "";
+
     protected override async Task OnInitializedAsync()
     {
         await GetMusics();
@@ -83,9 +86,10 @@
 
     public async Task GetPlaylists()
     {
-        playlists = await mockMusics.GetPlaylists();
-        playlists.Add(new Playlist { Id = 0, Nome = "Nova Playlist" });
-        playlists.Reverse();
+        //playlists = await mockMusics.GetPlaylists();
+        playlists = await http.GetFromJsonAsync<List<Playlist>>("https://localhost:7100/v1/playlists");
+        playlists.Add(new Playlist { Id = -1, Nome = "Nova Playlist" });
+        //playlists.Reverse();
     }
 
     public async Task GetCategories()
